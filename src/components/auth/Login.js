@@ -1,5 +1,42 @@
-import React from "react";
-const Login = () => {
+import React, {useState} from "react";
+import {useNavigate } from "react-router-dom";
+const Login = ({setLoginUser}) => {
+  const navigate  = useNavigate()
+    const [user,setUser] = useState({
+        email:"",
+        password: ""
+    })
+    const handleChange = e =>{
+    const {email,value} = e.target
+    setUser({
+    ...user,//spread operator 
+    [email]:value
+    })
+    }
+
+    const LoginUser = async (e) => {
+      console.log(user);
+      e.preventDefault();
+      const res = await fetch('/signin', {
+          method : "POST",
+          headers : {
+              "Content-Type":"application/json"
+          },
+          body : JSON.stringify({user})
+      });
+      console.log(res);
+      const data = res.json();
+      console.log(!data);
+      if(res.status === 400 || res.status === 402 || res.status === 404 || !data){
+          window.alert('Invalid Credentials');
+      }
+      else{
+          window.alert('Login Successful')
+          setLoginUser(data.user);
+          navigate('/home');
+      }
+  }
+
   return (
     <>
       <div className="container-scroller">
@@ -20,6 +57,9 @@ const Login = () => {
                         className="form-control form-control-lg"
                         id="exampleInputEmail1"
                         placeholder="Username"
+                        value={user.email} 
+                        onChange={handleChange}
+                        required
                       />
                     </div>
                     <div className="form-group">
@@ -27,22 +67,27 @@ const Login = () => {
                         type="password"
                         className="form-control form-control-lg"
                         id="exampleInputPassword1"
+                        value={user.password} 
+                        onChange={handleChange}
                         placeholder="Password"
+                        required
                       />
                     </div>
                     <div className="mt-3">
-                      <a
+                      <button
+                        onClick={LoginUser}
                         className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
-                        href="../../index.html"
+                        href="#"
                       >
                         SIGN IN
-                      </a>
+                      </button>
                     </div>
                     <div className="my-2 d-flex justify-content-between align-items-center">
                       <div className="form-check">
                         <label className="form-check-label text-muted">
                           <input type="checkbox" className="form-check-input" />
                           Keep me signed in
+                          <i class="input-helper"></i>
                         </label>
                       </div>
                       <a href="#" className="auth-link text-black">
