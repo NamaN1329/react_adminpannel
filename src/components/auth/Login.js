@@ -1,41 +1,50 @@
-import React, {useState} from "react";
-import {useNavigate } from "react-router-dom";
-const Login = ({setLoginUser}) => {
-  const navigate  = useNavigate()
-    const [user,setUser] = useState({
-        email:"",
-        password: ""
-    })
-    const handleChange = e =>{
-    const {email,value} = e.target
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+const Login = ({ setLoginUser }) => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState({
+    email: "",
+    password: "",
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setUser({
-    ...user,//spread operator 
-    [email]:value
-    })
-    }
+      ...user, //spread operator
+      [name]: value,
+    });
+    console.log(user)
+  };
 
-    const LoginUser = async (e) => {
-      console.log(user);
-      e.preventDefault();
-      const res = await fetch('/signin', {
-          method : "POST",
-          headers : {
-              "Content-Type":"application/json"
-          },
-          body : JSON.stringify({user})
-      });
-      console.log(res);
-      const data = res.json();
-      console.log(!data);
-      if(res.status === 400 || res.status === 402 || res.status === 404 || !data){
-          window.alert('Invalid Credentials');
-      }
-      else{
-          window.alert('Login Successful')
-          setLoginUser(data.user);
-          navigate('/home');
-      }
-  }
+  const LoginUser = async (e) => {
+    e.preventDefault();
+    const email = user.email;
+    const password = user.password;
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({email,password}),
+    });
+    const data = await res.json();
+    if (
+      res.status === 400 ||
+      res.status === 402 ||
+      res.status === 404 ||
+      !data
+    ) {
+      window.alert("Invalid Credentials");
+    }
+    else if(res.status==422){
+      window.alert("Wrong Credentials");
+    }
+    else {
+      console.log(data);
+      window.alert("Login Successful");
+      // setLoginUser(data.user);
+      navigate("/dashboard");
+    }
+  };
 
   return (
     <>
@@ -46,7 +55,10 @@ const Login = ({setLoginUser}) => {
               <div className="col-lg-4 mx-auto">
                 <div className="auth-form-light text-left py-5 px-4 px-sm-5">
                   <div className="brand-logo">
-                    <img src={`${process.env.PUBLIC_URL}/images/logo.svg`} alt="logo" />                   
+                    <img
+                      src={`${process.env.PUBLIC_URL}/images/logo.svg`}
+                      alt="logo"
+                    />
                   </div>
                   <h4>Hello! let's get started</h4>
                   <h6 className="font-weight-light">Sign in to continue.</h6>
@@ -54,10 +66,12 @@ const Login = ({setLoginUser}) => {
                     <div className="form-group">
                       <input
                         type="email"
+                        name="email"
                         className="form-control form-control-lg"
                         id="exampleInputEmail1"
                         placeholder="Username"
-                        value={user.email} 
+                        autoComplete="off"
+                        value={user.email}
                         onChange={handleChange}
                         required
                       />
@@ -65,11 +79,13 @@ const Login = ({setLoginUser}) => {
                     <div className="form-group">
                       <input
                         type="password"
+                        name="password"
                         className="form-control form-control-lg"
                         id="exampleInputPassword1"
-                        value={user.password} 
+                        value={user.password}
                         onChange={handleChange}
                         placeholder="Password"
+                        autoComplete="off"
                         required
                       />
                     </div>
@@ -87,7 +103,7 @@ const Login = ({setLoginUser}) => {
                         <label className="form-check-label text-muted">
                           <input type="checkbox" className="form-check-input" />
                           Keep me signed in
-                          <i class="input-helper"></i>
+                          <i className="input-helper"></i>
                         </label>
                       </div>
                       <a href="#" className="auth-link text-black">
@@ -99,12 +115,13 @@ const Login = ({setLoginUser}) => {
                         type="button"
                         className="btn btn-block btn-facebook auth-form-btn"
                       >
-                        <i className="ti-facebook mr-2"></i>Connect using facebook
+                        <i className="ti-facebook mr-2"></i>Connect using
+                        facebook
                       </button>
                     </div>
                     <div className="text-center mt-4 font-weight-light">
                       Don't have an account?{" "}
-                      <a href="register.html" className="text-primary">
+                      <a href="/signup" className="text-primary">
                         Create
                       </a>
                     </div>
